@@ -2,6 +2,7 @@
   "name": "ws-mockServer",
   "version": "0.0.1",
   "dependencies": {
+    "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "express-ws": "^3.0.0",
     "path": "^0.12.7",

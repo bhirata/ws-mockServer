@@ -1,45 +1,58 @@
-var path = require('path');
-var app = require('express')();
-var WebSocketServer = require('ws').Server;
-var CLIENTS = [];
+(function () {
+  "use strict";
 
-const wss = new WebSocketServer({ port: 3002 });
+  var path = require('path');
+  var app = require('express')();
+  var WebSocketServer = require('ws').Server;
+  var CLIENTS = [];
 
-wss.on('connection', (ws) => {
+  require('dotenv').config({silent: true});
 
-  console.log("user connected");
+  const wss = new WebSocketServer({ port: 6001 });
 
-  CLIENTS.push(ws);
-  ws.on('auth', (auth) => {
-    let authObj = {
-      "event" : "auth",
-      "success" : true
-    };
+  wss.on('connection', (ws) => {
+    console.log("User Connected");
 
-    console.log("auth");
-    ws.send(authObj);
+    ws.on('message', (message) => {
+      console.log('Received: ' + message);
+
+      message = JSON.parse(message);
+
+      if (message.event === "auth") {
+        // message.status = "authorized";
+        let response = {
+          event : "auth",
+          success : true
+        };
+        ws.send(JSON.stringify(response));
+
+      } else if (message.event === "add_protocol") {
+        ws.send("add_protocol");
+      }
+      // } else if (message.event === )
+
+
+      // ws.send("Hello");
+      ws.on('close', (client) => {
+        CLIENTS.slice(CLIENTS.indexOf(client), 1);
+        console.log("Client Disconnected");
+      });
+      ws.on('error', (client) => {
+        CLIENTS.slice(CLIENTS.indexOf(client), 1);
+      });
+    });
+
+    ws.send("Welcome to WebSocket Server");
   });
 
-  ws.on('message', (message) => {
-    console.log('Received: ' + message);
-    ws.send("Hello");
+
+  app.get('/', function (req, res) {
+    console.log("request in \\");
+    res.send("<h1>WebSocket Node.JS");
   });
 
-  ws.on('close', (client) => {
-    CLIENTS.slice(CLIENTS.indexOf(client), 1);
-    console.log("Client Disconnected");
-  });
-  ws.on('error', (client) => {
-    CLIENTS.slice(CLIENTS.indexOf(client), 1);
-  });
+  let port = process.env.PORT || 3001;
 
-  ws.send("Welcome to WebSocket Server");
+  app.listen(port, () => console.log("listening on http://localhost:" + port));
 
-});
-
-app.get('/', function (req, res) {
-  console.log("request in \\");
-  res.send("<h1>WebSocket Node.JS");
-});
-
-app.listen(3001, () => console.log("listening on http://localhost:3001"));
+})();
