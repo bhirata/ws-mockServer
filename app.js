@@ -8,7 +8,8 @@
 
   require('dotenv').config({silent: true});
 
-  const wss = new WebSocketServer({ port: 6001 });
+  let wssPort = process.env.WSS_PORT || 6005;
+  const wss = new WebSocketServer({ port: wssPort });
 
   wss.on('connection', (ws) => {
     console.log("User Connected");
